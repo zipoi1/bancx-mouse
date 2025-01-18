@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.tailwindcss.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com">
+    <title>Idle Prevention App</title>
+    <link href="./styles.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            border-radius: 16px;
+            overflow: hidden;
+            -webkit-app-region: drag;
+            background: #111827; /* gray-900 */
+        }
+        button, select {
+            -webkit-app-region: no-drag;
+        }
+        .app-container {
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .status-item {
+            width: 100%;
+            text-align: center;
+            padding: 0.75rem;
+            background-color: rgba(31, 41, 55, 0.5);
+            border-radius: 0.75rem;
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container bg-gray-900 min-h-screen">
+        <div class="relative p-6">
+            <!-- Close button -->
+            <button id="closeButton" class="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-red-500 transition-colors duration-200">
+                <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="space-y-6 pt-2">
+                <div class="text-center">
+                    <svg width="99" height="27" viewBox="0 0 99 27" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-3">
+                        <path d="M0 26.5886V0.411356H10.5568C12.4785 0.411356 14.0258 0.972298 15.1988 2.09418C16.3718 3.19114 16.9582 4.66205 16.9582 6.50693C16.9582 7.62881 16.7586 8.57618 16.3593 9.34903C15.9849 10.1219 15.5107 10.7327 14.9367 11.1814C14.3627 11.6302 13.8012 11.9418 13.2521 12.1163V12.3781C13.926 12.5526 14.6123 12.9266 15.3111 13.5C16.0348 14.0485 16.6463 14.7964 17.1454 15.7438C17.6446 16.6911 17.8941 17.8379 17.8941 19.1842C17.8941 20.7798 17.5697 22.1385 16.9208 23.2604C16.2969 24.3573 15.4109 25.1925 14.2629 25.7659C13.1398 26.3144 11.8171 26.5886 10.2947 26.5886H0Z" fill="white"/>
+                        <path d="M18.4633 26.5886V25.6537L23.6668 0.411356L33.6246 0.448752L38.8281 25.6537V26.5886H32.6513L31.7154 20.6427H25.576L24.6401 26.5886H18.4633ZM26.3621 15.482H30.9293L29.4318 6.02078H27.8596L26.3621 15.482Z" fill="white"/>
+                        <path d="M52.5187 0.411356H58.2837V26.5886H52.1443L46.5664 12.0415H46.1921L46.4541 26.5886H40.6891V0.411356H46.8285L52.4064 15.2576H52.7807L52.5187 0.411356Z" fill="white"/>
+                        <path d="M60.7375 13.5C60.7375 11.1814 61.0495 9.17451 61.6734 7.47922C62.2973 5.78393 63.1334 4.38781 64.1816 3.29086C65.2547 2.16897 66.4651 1.34626 67.8128 0.822715C69.1605 0.274238 70.5581 0 72.0056 0C73.4031 0 74.5512 0.137119 75.4496 0.411356C76.373 0.685596 77.0344 0.99723 77.4337 1.34626V6.99307H76.685C76.3605 6.64404 75.8864 6.30748 75.2624 5.98338C74.6635 5.63435 73.9272 5.45983 73.0538 5.45983C71.8309 5.45983 70.7577 5.77147 69.8343 6.39474C68.9109 6.99307 68.1871 7.89058 67.6631 9.08726C67.139 10.2839 66.8769 11.7548 66.8769 13.5C66.8769 15.2452 67.139 16.7161 67.6631 17.9127C68.1871 19.1094 68.9109 20.0194 69.8343 20.6427C70.7577 21.241 71.8309 21.5402 73.0538 21.5402C73.9272 21.5402 74.6635 21.3781 75.2624 21.054C75.8864 20.705 76.3605 20.356 76.685 20.0069H77.4337V25.6537C77.0344 25.9778 76.373 26.2895 75.4496 26.5886C74.5512 26.8629 73.4031 27 72.0056 27C70.5581 27 69.1605 26.7382 67.8128 26.2147C66.4651 25.6662 65.2547 24.8435 64.1816 23.7465C63.1334 22.6247 62.2973 21.2161 61.6734 19.5208C61.0495 17.8255 60.7375 15.8186 60.7375 13.5Z" fill="white"/>
+                        <path d="M78.7474 26.5886V25.6537L83.7638 13.126L79.1218 1.34626V0.411356H85.2238L88.6304 10.097H89.1545L92.5237 0.411356H98.6256V1.34626L94.2083 13.126L99 25.6537V26.5886H92.898L89.1545 16.9404H88.6304L84.8494 26.5886H78.7474Z" fill="white"/>
+                    </svg>
+                    <p class="text-[#4B9EF9] text-sm mb-4">Keep your system active for:</p>
+                    
+                    <!-- Duration Dropdown -->
+                    <div class="bg-[#1E2533] rounded-lg p-2 mx-auto w-48">
+                        <select id="durationSelect" class="w-full bg-transparent text-white text-sm focus:outline-none cursor-pointer">
+                            <option value="60" class="bg-[#1E2533]">1 min</option>
+                            <option value="1800" class="bg-[#1E2533]">30 mins</option>
+                            <option value="3600" class="bg-[#1E2533]">1 hr</option>
+                            <option value="5400" class="bg-[#1E2533]">1 hr 30 mins</option>
+                            <option value="7200" class="bg-[#1E2533]">2 hrs</option>
+                            <option value="9000" class="bg-[#1E2533]">2 hrs 30 mins</option>
+                            <option value="10800" class="bg-[#1E2533]">3 hrs</option>
+                            <option value="12600" class="bg-[#1E2533]">3 hrs 30 mins</option>
+                            <option value="14400" class="bg-[#1E2533]">4 hrs</option>
+                            <option value="16200" class="bg-[#1E2533]">4 hrs 30 mins</option>
+                            <option value="28800" selected class="bg-[#1E2533]">8 hrs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 rounded-xl p-5 shadow-lg">
+                    <!-- Toggle Button -->
+                    <div class="flex justify-center mb-6">
+                        <button id="toggleButton" class="w-full px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors duration-200">
+                            Keep Active
+                        </button>
+                    </div>
+
+                    <!-- Status Items -->
+                    <div class="space-y-3">
+                        <div class="status-item">
+                            <div class="text-gray-400 text-xs mb-1">System Idle Time</div>
+                            <div id="status" class="text-white text-lg font-medium">0s</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="text-gray-400 text-xs mb-1">Last Action</div>
+                            <div id="lastAction" class="text-white text-lg font-medium">No actions taken</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+    <script>
+        let isActive = false;
+        const toggleButton = document.getElementById('toggleButton');
+        const durationSelect = document.getElementById('durationSelect');
+        const closeButton = document.getElementById('closeButton');
+        const idleTimeElement = document.getElementById('status');
+        const lastActionElement = document.getElementById('lastAction');
+
+        toggleButton.addEventListener('click', () => {
+            isActive = !isActive;
+            window.electronAPI.toggleIdlePrevention(isActive);
+            toggleButton.textContent = isActive ? 'Stop' : 'Keep Active';
+            toggleButton.classList.toggle('bg-red-500');
+            toggleButton.classList.toggle('bg-blue-600');
+        });
+
+        durationSelect.addEventListener('change', (e) => {
+            window.electronAPI.setDuration(parseInt(e.target.value));
+        });
+
+        closeButton.addEventListener('click', () => {
+            window.electronAPI.closeWindow();
+        });
+
+        window.electronAPI.onStatusUpdate((event, status) => {
+            if (status.idleTime !== undefined) {
+                idleTimeElement.textContent = status.idleTime;
+            }
+            if (status.lastAction !== undefined) {
+                lastActionElement.textContent = status.lastAction;
+            }
+            if (status.isActive !== undefined) {
+                isActive = status.isActive;
+                toggleButton.textContent = isActive ? 'Stop' : 'Keep Active';
+                toggleButton.classList.toggle('bg-red-500', isActive);
+                toggleButton.classList.toggle('bg-blue-600', !isActive);
+            }
+        });
+    </script>
+</body>
+</html>
