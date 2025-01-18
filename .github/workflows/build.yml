@@ -67,17 +67,15 @@ jobs:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v3
     
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: ncipollo/release-action@v1
       with:
-        files: |
-          windows-installer/*.exe
-          macos-installer/*.dmg
-          macos-installer/*.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "windows-installer/*.exe,macos-installer/*.dmg,macos-installer/*.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
