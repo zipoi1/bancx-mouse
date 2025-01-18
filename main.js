@@ -98,14 +98,21 @@ function updateStatus() {
 
 function stopPreventingIdle() {
     console.log('Stopping idle prevention');
+    if (preventionStartTime) {
+        const elapsedTime = Math.floor((Date.now() - preventionStartTime) / 1000);
+        console.log(`Total active duration: ${formatDuration(elapsedTime)}`);
+    }
+    
     isPreventingIdle = false;
     if (idleCheckInterval) {
         clearInterval(idleCheckInterval);
         idleCheckInterval = null;
+        console.log('Idle check interval cleared');
     }
     preventionStartTime = null;
     if (mainWindow) {
         mainWindow.webContents.send('reset-ui');
+        console.log('UI reset signal sent');
     }
 }
 
@@ -136,43 +143,71 @@ ipcMain.on('close-window', () => {
 
 ipcMain.handle('set-duration', (event, duration) => {
     selectedDuration = duration;
+    console.log(`Duration updated to: ${formatDuration(duration)}`);
     if (isPreventingIdle) {
-        // If already running, update the prevention duration
+        // If already running, update the prevention duration and reset start time
         preventionStartTime = Date.now();
+        console.log(`Reset start time, will run for: ${formatDuration(duration)}`);
         updateStatus();
     }
 });
 
-ipcMain.on('toggle-idle-prevention', (event, enabled) => {
+ipcMain.on('toggle-idle-prevention', (event, enabled, duration) => {
     isPreventingIdle = enabled;
-    console.log('Idle prevention toggled:', enabled);
+    console.log(`Idle prevention ${enabled ? 'started' : 'stopped'}`);
     
     if (enabled) {
+        // Update duration if provided
+        if (duration) {
+            selectedDuration = duration;
+            console.log(`Duration set to: ${formatDuration(selectedDuration)}`);
+        }
+        
         preventionStartTime = Date.now();
-        console.log(`Idle prevention will run for ${formatDuration(selectedDuration)} (until ${new Date(Date.now() + selectedDuration * 1000).toLocaleTimeString()})`);
+        const endTime = new Date(Date.now() + selectedDuration * 1000);
+        console.log(`Will run until: ${endTime.toLocaleTimeString()} (${formatDuration(selectedDuration)} from now)`);
+        
+        // Clear existing interval if any
+        if (idleCheckInterval) {
+            clearInterval(idleCheckInterval);
+        }
+        
         idleCheckInterval = setInterval(async () => {
             const idleTime = powerMonitor.getSystemIdleTime();
-            console.log('Current idle time:', idleTime);
+            const elapsedTime = Math.floor((Date.now() - preventionStartTime) / 1000);
+            const remainingTime = selectedDuration - elapsedTime;
+            
+            console.log(`Status: Active | Idle time: ${idleTime}s | Remaining: ${formatDuration(Math.max(0, remainingTime))}`);
             
             // Send idle time update to renderer
             mainWindow.webContents.send('idle-time-update', idleTime);
             
+            // Check if duration has elapsed
+            if (remainingTime <= 0) {
+                console.log('Duration completed, stopping idle prevention');
+                stopPreventingIdle();
+                return;
+            }
+            
+            // Perform activity if system is idle
             if (idleTime >= 50) { // 50 seconds
                 console.log('Idle threshold reached, performing activity...');
                 const actionDescription = await performSystemActivity();
                 console.log('Action performed:', actionDescription);
                 
-                const preventionDuration = formatDuration(Math.floor((Date.now() - preventionStartTime) / 1000));
                 mainWindow.webContents.send('activity-performed', {
-                    preventionDuration,
+                    preventionDuration: formatDuration(elapsedTime),
                     lastAction
                 });
             }
+            
             updateStatus();
         }, 1000);
     } else {
         if (idleCheckInterval) {
             clearInterval(idleCheckInterval);
+            console.log('Idle prevention interval cleared');
         }
+        stopPreventingIdle();
     }
 });

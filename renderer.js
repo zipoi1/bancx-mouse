@@ -2,6 +2,7 @@ let isEnabled = false;
 const toggleButton = document.getElementById('toggleButton');
 const statusDiv = document.getElementById('status');
 const lastActionElement = document.getElementById('lastAction');
+const durationSelect = document.getElementById('durationSelect');
 
 // Function to format idle time
 function formatIdleTime(seconds) {
@@ -13,17 +14,35 @@ function formatIdleTime(seconds) {
     return `${minutes}m ${remainingSeconds}s`;
 }
 
+// Initialize duration
+window.electronAPI.setDuration(parseInt(durationSelect.value));
+
 toggleButton.addEventListener('click', () => {
     isEnabled = !isEnabled;
     toggleButton.textContent = isEnabled ? 'Stop' : 'Keep Active';
     toggleButton.classList.toggle('bg-red-500', isEnabled);
     toggleButton.classList.toggle('bg-blue-600', !isEnabled);
     
-    window.electronAPI.toggleIdlePrevention(isEnabled);
+    if (isEnabled) {
+        // When enabling, send both the toggle state and current duration
+        window.electronAPI.toggleIdlePrevention(true, parseInt(durationSelect.value));
+    } else {
+        window.electronAPI.toggleIdlePrevention(false);
+    }
     
     if (!isEnabled) {
         statusDiv.textContent = '0s';
         lastActionElement.textContent = 'No actions taken';
+    }
+});
+
+// Handle duration selection
+durationSelect.addEventListener('change', (event) => {
+    const duration = parseInt(event.target.value);
+    window.electronAPI.setDuration(duration);
+    if (isEnabled) {
+        // If already running, restart with new duration
+        window.electronAPI.toggleIdlePrevention(true, duration);
     }
 });
 
