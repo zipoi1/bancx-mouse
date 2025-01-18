@@ -15,6 +15,8 @@ permissions:
 jobs:
   build-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v3
@@ -39,6 +41,8 @@ jobs:
         
   build-macos:
     runs-on: macos-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v3
@@ -74,8 +78,25 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v3
     
+    - name: Display structure of downloaded files
+      run: ls -R
+      
     - name: Create Release
-      uses: ncipollo/release-action@v1
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        artifacts: "windows-installer/*.exe,macos-installer/*.dmg,macos-installer/*.zip"
-        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./windows-installer/*.exe
+        asset_name: BancxMouse-Setup.exe
+        asset_content_type: application/octet-stream
